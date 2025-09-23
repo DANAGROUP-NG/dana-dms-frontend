@@ -2,15 +2,16 @@
 
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import { WorkflowBuilder } from "../components/workflow/WorkflowBuilder"
-import { ApprovalChain } from "../components/workflow/ApprovalChain"
-import { WorkflowTimeline } from "../components/workflow/WorkflowTimeline"
+// import { WorkflowBuilder } from "../components/workflow/WorkflowBuilder"
 import { AssignmentPanel } from "../components/assignments/AssignmentPanel"
-import { TaskDashboard } from "../components/tasks/TaskDashboard"
-import { QuickActions } from "../components/tasks/QuickActions"
 import { CommentThread } from "../components/comments/CommentThread"
 import { NotificationCenter } from "../components/notifications/NotificationCenter"
-import type { WorkflowInstance, Assignment, Comment, Notification } from "../types/workflow"
+import { QuickActions } from "../components/tasks/QuickActions"
+import { TaskDashboard } from "../components/tasks/TaskDashboard"
+import { ApprovalChain } from "../components/workflow/ApprovalChain"
+import { WorkflowTimeline } from "../components/workflow/WorkflowTimeline"
+import { mockWorkflowAssignments } from "../data/mockWorkflow"
+import type { Assignment, Comment, Notification, WorkflowInstance } from "../types/workflow"
 
 // Mock data
 const mockWorkflow: WorkflowInstance = {
@@ -65,7 +66,7 @@ const mockWorkflow: WorkflowInstance = {
 }
 
 export function WorkflowManagement() {
-  const [assignments, setAssignments] = useState<Assignment[]>([])
+  const [assignments, setAssignments] = useState<Assignment[]>(mockWorkflowAssignments)
   const [comments, setComments] = useState<Comment[]>([])
   const [notifications, setNotifications] = useState<Notification[]>([])
 
@@ -136,7 +137,21 @@ export function WorkflowManagement() {
   }
 
   const handleQuickAction = (assignmentId: string, action: string) => {
-    console.log("Quick action:", action, assignmentId)
+    setAssignments((prev) =>
+      prev.map((a) => {
+        if (a.id !== assignmentId) return a
+        if (action === "start") {
+          return { ...a, status: "in-progress", assignedDate: a.assignedDate || new Date().toISOString() }
+        }
+        if (action === "complete" || action === "approve") {
+          return { ...a, status: "completed", completedDate: new Date().toISOString() }
+        }
+        if (action === "reject") {
+          return { ...a, status: "pending" }
+        }
+        return a
+      }),
+    )
   }
 
   return (
@@ -149,12 +164,12 @@ export function WorkflowManagement() {
       <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="builder">Builder</TabsTrigger>
           <TabsTrigger value="approvals">Approvals</TabsTrigger>
           <TabsTrigger value="assignments">Assignments</TabsTrigger>
           <TabsTrigger value="comments">Discussion</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
+        {/* <TabsTrigger value="builder">Builder</TabsTrigger> */}
 
         <TabsContent value="dashboard" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -171,9 +186,9 @@ export function WorkflowManagement() {
           </div>
         </TabsContent>
 
-        <TabsContent value="builder" className="space-y-6">
+        {/* <TabsContent value="builder" className="space-y-6">
           <WorkflowBuilder onSave={handleSaveWorkflow} onPublish={handlePublishWorkflow} />
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="approvals" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

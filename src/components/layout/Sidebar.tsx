@@ -1,20 +1,20 @@
 "use client"
-import { Link, useLocation } from "react-router-dom"
 import {
-  LayoutDashboard,
-  FileText,
-  Folder,
-  ClipboardList,
-  Workflow,
-  Shield,
-  ChevronLeft,
-  ChevronRight,
+    ChevronLeft,
+    ChevronRight,
+    ClipboardList,
+    FileText,
+    Folder,
+    LayoutDashboard,
+    Shield,
+    Workflow,
 } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
 import { cn } from "../../lib/utils"
+import type { NavigationItem } from "../../types"
 import { Button } from "../ui/button"
 import { ScrollArea } from "../ui/scroll-area"
 import { TenantSwitcher } from "./TenantSwitcher"
-import type { NavigationItem } from "../../types"
 
 interface SidebarProps {
   collapsed: boolean
@@ -53,6 +53,12 @@ const navigationItems: NavigationItem[] = [
     label: "Workflows",
     icon: "Workflow",
     path: "/workflows",
+  },
+  {
+    id: "permissions",
+    label: "Permissions",
+    icon: "Shield",
+    path: "/permissions",
   },
   {
     id: "audit",

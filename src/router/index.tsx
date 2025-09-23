@@ -10,17 +10,10 @@ import { Documents } from "../pages/Documents"
 import { Folders } from "../pages/Folders"
 import { NotFound } from "../pages/NotFound"
 import { PermissionsManagement } from "../pages/PermissionsManagement"
+import { WorkflowManagement } from "../pages/WorkflowManagement"
 
-// Placeholder components for remaining routes
-const Workflows = () => (
-  <div className="space-y-6">
-    <div>
-      <h1 className="text-3xl font-bold tracking-tight">Workflows</h1>
-      <p className="text-muted-foreground">Manage document workflows and approval processes</p>
-    </div>
-    <div className="text-center py-12 text-muted-foreground">Workflows feature coming soon...</div>
-  </div>
-)
+// Placeholder component for Audit route
+// WorkflowManagement is now properly imported above
 
 const Audit = () => (
   <div className="space-y-6">
@@ -68,6 +61,12 @@ export const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
+        path: "permissions",
+        element: (
+          <PermissionsManagement documentId={""} documentTitle="" onBack={() => window.history.back()} />
+        ),
+      },
+      {
         path: "documents",
         children: [
           {
@@ -103,7 +102,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "workflows",
-        element: <Workflows />,
+        element: <WorkflowManagement />,
       },
       {
         path: "audit",

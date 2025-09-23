@@ -1,17 +1,17 @@
 "use client"
 
+import { Archive, ChevronDown, Download, FolderOpen, Share, Tag, Trash2, X } from "lucide-react"
 import { useState } from "react"
-import { Download, Trash2, FolderOpen, Tag, X, ChevronDown, Archive, Share } from "lucide-react"
-import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
+import { Button } from "../ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
-import { BulkOperationsDialog } from "./BulkOperationsDialog"
+// Removed BulkOperationsDialog to simplify bulk actions UX
 import type { Document, Folder } from "../../data/mockData"
 
 interface BulkActionsProps {
@@ -22,24 +22,40 @@ interface BulkActionsProps {
 }
 
 export function BulkActions({ selectedDocuments, folders, onClearSelection, onBulkOperation }: BulkActionsProps) {
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [currentOperation, setCurrentOperation] = useState<string | null>(null)
 
   if (selectedDocuments.length === 0) return null
 
   const handleOperation = (operation: string) => {
     setCurrentOperation(operation)
-    setDialogOpen(true)
+    // Lightweight handling without a dialog. For operations requiring details,
+    // call onBulkOperation immediately and let parent handle any follow-up UI.
+    if (operation === "delete") {
+      const confirmed = window.confirm(`Delete ${selectedDocuments.length} selected document(s)?`)
+      if (!confirmed) return
+      onBulkOperation("delete")
+      setCurrentOperation(null)
+      return
+    }
+    if (operation === "archive") {
+      const confirmed = window.confirm(`Archive ${selectedDocuments.length} selected document(s)?`)
+      if (!confirmed) return
+      onBulkOperation("archive")
+      setCurrentOperation(null)
+      return
+    }
+    if (operation === "download") {
+      onBulkOperation("download")
+      setCurrentOperation(null)
+      return
+    }
+    // For move, tag, share: delegate to parent to present UI if needed
+    onBulkOperation(operation)
+    setCurrentOperation(null)
   }
 
   const handleConfirm = (operation: string, data?: any) => {
     onBulkOperation(operation, data)
-    setDialogOpen(false)
-    setCurrentOperation(null)
-  }
-
-  const handleCloseDialog = () => {
-    setDialogOpen(false)
     setCurrentOperation(null)
   }
 
@@ -103,14 +119,7 @@ export function BulkActions({ selectedDocuments, folders, onClearSelection, onBu
         </Button>
       </div>
 
-      <BulkOperationsDialog
-        isOpen={dialogOpen}
-        onClose={handleCloseDialog}
-        operation={currentOperation as any}
-        selectedDocuments={selectedDocuments}
-        folders={folders}
-        onConfirm={handleConfirm}
-      />
+      {/* Dialog removed; parent component can render context-specific UIs when needed */}
     </>
   )
 }

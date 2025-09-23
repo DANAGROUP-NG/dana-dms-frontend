@@ -75,11 +75,12 @@ export function DocumentPreview({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-[90vh] p-0">
+      <DialogContent className="max-w-6xl h-[90vh] p-0" aria-describedby="document-preview-description">
         <DialogHeader className="px-6 py-4 border-b">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <DialogTitle className="truncate">{document.name}</DialogTitle>
+              <div id="document-preview-description" className="sr-only">Preview of document {document.name}</div>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary" className={cn("text-xs", getStatusColor(document.status))}>
                   {document.status}

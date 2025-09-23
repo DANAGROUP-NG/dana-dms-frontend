@@ -1,11 +1,11 @@
 "use client"
 
-import { CheckCircle, Clock, AlertTriangle, Zap, Calendar, User } from "lucide-react"
-import { Button } from "../ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
-import { Badge } from "../ui/badge"
+import { AlertTriangle, Calendar, CheckCircle, Clock, User, Zap } from "lucide-react"
 import { cn } from "../../lib/utils"
 import type { Assignment } from "../../types/workflow"
+import { Badge } from "../ui/badge"
+import { Button } from "../ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 
 interface QuickActionsProps {
   assignments: Assignment[]
@@ -112,7 +112,7 @@ export function QuickActions({
             {pendingApprovals.map((task) => (
               <div
                 key={task.id}
-                className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg"
+                className="flex flex-col p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg"
               >
                 <div className="flex-1 min-w-0">
                   <h4 className="font-medium text-sm truncate">{task.title}</h4>
@@ -126,7 +126,7 @@ export function QuickActions({
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-4 self-end">
                   <Button size="sm" variant="outline" onClick={() => onQuickAction(task.id, "reject")}>
                     Reject
                   </Button>
@@ -154,7 +154,7 @@ export function QuickActions({
             {quickCompleteTasks.map((task) => (
               <div
                 key={task.id}
-                className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg"
+                className="flex flex-col p-3 bg-green-50 dark:bg-green-950/20 rounded-lg"
               >
                 <div className="flex-1 min-w-0">
                   <h4 className="font-medium text-sm truncate">{task.title}</h4>

@@ -14,18 +14,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 const mockTenants: Tenant[] = [
   {
     id: "1",
-    name: "Global Corp",
+    name: "Dana Group",
     type: "group",
     children: [
       {
         id: "2",
-        name: "North America",
+        name: "Dana House",
         type: "subsidiary",
         parentId: "1",
         children: [
           {
             id: "3",
-            name: "New York Office",
+            name: "Lagos",
             type: "location",
             parentId: "2",
             children: [
@@ -85,8 +85,8 @@ export function TenantSwitcher() {
           className="w-full justify-between bg-transparent"
         >
           <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4" />
-            <span className="truncate">{selectedTenant?.name}</span>
+            <img src="/public/dgc-logo.png" alt="Dana Group Logo"/>
+            {/* <span className="truncate">{selectedTenant?.name}</span> */}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

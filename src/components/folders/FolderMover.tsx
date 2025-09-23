@@ -1,28 +1,26 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { ScrollArea } from "../ui/scroll-area"
-import { Progress } from "../ui/progress"
-import { Badge } from "../ui/badge"
 import {
+  AlertCircle,
+  ChevronDown,
+  ChevronRight,
+  Copy,
   FolderIcon,
   FolderOpen,
-  FileIcon,
-  Search,
-  ChevronRight,
-  ChevronDown,
-  Move,
-  Copy,
-  CheckCircle,
-  AlertCircle,
   Loader2,
+  Move,
+  Search
 } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import type { Document, Folder } from "../../data/mockData"
 import { cn } from "../../lib/utils"
 import { useGetFolderTreeQuery, useMoveItemsMutation, type MoveOperation } from "../../store/api/foldersApi"
-import type { Folder, Document } from "../../data/mockData"
+import { Badge } from "../ui/badge"
+import { Button } from "../ui/button"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Input } from "../ui/input"
+import { Progress } from "../ui/progress"
+import { ScrollArea } from "../ui/scroll-area"
 
 export interface MoveItem {
   type: "document" | "folder"
@@ -276,30 +274,18 @@ export function FolderMover({ open, onOpenChange, items, operation, onComplete }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-2xl" aria-describedby="folder-mover-description">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {operation === "move" ? <Move className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-            {operation === "move" ? "Move" : "Copy"} {items.length} item{items.length !== 1 ? "s" : ""}
+          <DialogTitle>
+            {operation === "move" ? "Move" : "Copy"} {items.length > 1 ? "Items" : items[0]?.type === "folder" ? "Folder" : "Document"}
           </DialogTitle>
+          <div id="folder-mover-description" className="sr-only">
+            {operation === "move" ? "Move" : "Copy"} {items.length} {items.length > 1 ? "items" : items[0]?.type === "folder" ? "folder" : "document"} to a new location
+          </div>
         </DialogHeader>
 
-        <div className="flex-1 flex flex-col gap-4 min-h-0">
-          {/* Items to move */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Items to {operation}:</h4>
-            <div className="flex flex-wrap gap-2">
-              {items.map((item) => (
-                <Badge key={item.id} variant="outline" className="flex items-center gap-1">
-                  {item.type === "folder" ? <FolderIcon className="h-3 w-3" /> : <FileIcon className="h-3 w-3" />}
-                  {item.name}
-                  {isProcessing && processedItems.has(item.id) && <CheckCircle className="h-3 w-3 text-green-500" />}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          {/* Search */}
+        {/* Search and folder tree */}
+        <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -307,35 +293,31 @@ export function FolderMover({ open, onOpenChange, items, operation, onComplete }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
-              disabled={isProcessing}
             />
           </div>
 
-          {/* Destination selection */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Select destination:</h4>
-
-            {/* Root folder option */}
-            <div
-              className={cn(
-                "flex items-center py-2 px-3 rounded-md cursor-pointer transition-colors",
-                "hover:bg-accent/50",
-                selectedFolderId === null && "bg-accent text-accent-foreground",
-              )}
-              onClick={() => setSelectedFolderId(null)}
-            >
-              <FolderIcon className="h-4 w-4 text-blue-500 mr-2" />
-              <span className="text-sm font-medium">Root Folder</span>
-            </div>
-
-            {/* Folder tree */}
-            <ScrollArea className="h-64 border rounded-md p-2">
+          <div className="border rounded-md h-64 overflow-hidden">
+            <ScrollArea className="h-full p-2">
               {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : filteredFolders && filteredFolders.length > 0 ? (
-                <div className="space-y-1">
+                <div>
+                  {/* Root folder option */}
+                  <div
+                    className={cn(
+                      "flex items-center py-2 px-3 rounded-md cursor-pointer transition-colors",
+                      "hover:bg-accent/50",
+                      selectedFolderId === null && "bg-accent text-accent-foreground"
+                    )}
+                    onClick={() => setSelectedFolderId(null)}
+                  >
+                    <FolderIcon className="h-4 w-4 text-blue-500 mr-2" />
+                    <span className="flex-1 text-sm font-medium">Root</span>
+                  </div>
+
+                  {/* Folder tree */}
                   {filteredFolders.map((folder) => (
                     <FolderTreeItem
                       key={folder.id}
@@ -344,72 +326,75 @@ export function FolderMover({ open, onOpenChange, items, operation, onComplete }
                       selectedFolderId={selectedFolderId}
                       onSelectFolder={setSelectedFolderId}
                       expandedFolders={expandedFolders}
-                      onToggleExpanded={handleToggleExpanded}
+                      onToggleExpanded={(folderId) => {
+                        setExpandedFolders((prev) => {
+                          const newSet = new Set(prev)
+                          if (newSet.has(folderId)) {
+                            newSet.delete(folderId)
+                          } else {
+                            newSet.add(folderId)
+                          }
+                          return newSet
+                        })
+                      }}
                       disabledFolders={disabledFolders}
                     />
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <FolderIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No folders found</p>
+                <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                  No folders found
                 </div>
               )}
             </ScrollArea>
           </div>
-
-          {/* Selected destination info */}
-          {selectedFolder && (
-            <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm">
-                <span className="font-medium">Destination:</span> {selectedFolder.name}
-              </p>
-              <p className="text-xs text-muted-foreground">{selectedFolder.documentCount} documents</p>
-            </div>
-          )}
-
-          {/* Progress */}
-          {isProcessing && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{operation === "move" ? "Moving" : "Copying"} items...</span>
-                <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-          )}
-
-          {/* Errors */}
-          {errors.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-destructive">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">Errors occurred:</span>
-              </div>
-              <div className="space-y-1">
-                {errors.map((error, index) => (
-                  <p key={index} className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                    {error}
-                  </p>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* Progress indicator for ongoing operations */}
+        {isProcessing && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">
+                {operation === "move" ? "Moving" : "Copying"} {processedItems.size} of {items.length} items...
+              </span>
+              <span className="text-sm font-medium">{Math.round(progress)}%</span>
+            </div>
+            <Progress value={progress} />
+
+            {errors.length > 0 && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                <div className="flex items-center gap-2 text-red-600 mb-1">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Errors occurred:</span>
+                </div>
+                <ul className="text-xs text-red-600 space-y-1 ml-6 list-disc">
+                  {errors.map((error, i) => (
+                    <li key={i}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isProcessing}>
             Cancel
           </Button>
-          <Button onClick={handleMove} disabled={items.length === 0 || isProcessing}>
+          <Button
+            onClick={handleMove}
+            disabled={isProcessing}
+            className="gap-2"
+          >
             {isProcessing ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {operation === "move" ? "Moving..." : "Copying..."}
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Processing...
               </>
             ) : (
               <>
-                {operation === "move" ? "Move" : "Copy"} {items.length} item{items.length !== 1 ? "s" : ""}
+                {operation === "move" ? <Move className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {operation === "move" ? "Move" : "Copy"} to Selected Folder
               </>
             )}
           </Button>

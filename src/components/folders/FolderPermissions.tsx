@@ -15,12 +15,12 @@ export default function FolderPermissions({ folder, size = "sm" }: FolderPermiss
   if (!meta) return null
 
   if (meta.restrictedAccess) {
-    return <Lock className={`${iconSize} text-red-500`} title="Restricted" />
+    return <Lock className={`${iconSize} text-red-500`} aria-label="Restricted" />
   }
   if (!meta.isPublic && meta.allowSharing) {
-    return <Users className={`${iconSize} text-blue-500`} title="Shared" />
+    return <Users className={`${iconSize} text-blue-500`} aria-label="Shared" />
   }
-  return <Globe className={`${iconSize} text-gray-400`} title="Public" />
+  return <Globe className={`${iconSize} text-gray-400`} aria-label="Public" />
 }
 
 

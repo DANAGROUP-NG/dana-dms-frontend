@@ -1,7 +1,7 @@
 "use client"
 
-import { ArrowLeft } from "lucide-react"
-import { useState } from "react"
+import { ArrowLeft, Maximize2 } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ActivityTimeline } from "../components/documents/ActivityTimeline"
 import { DocumentHeader } from "../components/documents/DocumentHeader"
@@ -9,7 +9,6 @@ import { DocumentPreview } from "../components/documents/DocumentPreview"
 import { DocumentTabs, TabContent } from "../components/documents/DocumentTabs"
 import { MetadataEditor } from "../components/documents/MetadataEditor"
 import { PermissionsPanel } from "../components/documents/PermissionsPanel"
-import { RelatedDocuments } from "../components/documents/RelatedDocuments"
 import { VersionHistory } from "../components/documents/VersionHistory"
 import { WorkflowStatus } from "../components/documents/WorkflowStatus"
 import { Button } from "../components/ui/button"
@@ -23,8 +22,19 @@ export function DocumentDetailView() {
   const [isFavorited, setIsFavorited] = useState(false)
   const [activeTab, setActiveTab] = useState("preview")
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  
+  // Open preview when preview tab is active
+  useEffect(() => {
+    if (activeTab === "preview") {
+      setIsPreviewOpen(true)
+    }
+  }, [activeTab])
 
   // Event handlers
+  const handleOpenPreview = () => {
+    setIsPreviewOpen(true)
+  }
+
   const handleDownload = () => {
     console.log("Downloading document:", document.name)
     // Implement download logic
@@ -131,6 +141,36 @@ export function DocumentDetailView() {
           <TabContent value="preview">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="lg:col-span-3">
+                <div className="p-4 border rounded-lg bg-white shadow-sm">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium">Document Preview</h3>
+                    <Button onClick={handleOpenPreview} variant="outline" size="sm">
+                      <Maximize2 className="h-4 w-4 mr-2" />
+                      Open Preview
+                    </Button>
+                  </div>
+                  
+                  {/* Thumbnail preview that opens the full preview when clicked */}
+                  <div 
+                    className="cursor-pointer flex items-center justify-center p-8 bg-muted/20 rounded-md" 
+                    onClick={handleOpenPreview}
+                  >
+                    {document.thumbnail ? (
+                      <img 
+                        src={document.thumbnail} 
+                        alt={document.name} 
+                        className="max-h-[400px] object-contain" 
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">📄</div>
+                        <p className="text-sm text-muted-foreground">Click to preview document</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Full document preview dialog */}
                 <DocumentPreview
                   document={{...document, version: document.currentVersion}}
                   isOpen={isPreviewOpen}

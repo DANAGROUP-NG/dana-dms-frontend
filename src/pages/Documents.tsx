@@ -1,13 +1,17 @@
 "use client"
 
 import type React from "react"
+import { useEffect } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 
 import { Menu, Plus, Upload } from "lucide-react"
 import { useState } from "react"
 import { BulkActions } from "../components/documents/BulkActions"
 import { DocumentContextMenu } from "../components/documents/DocumentContextMenu"
 import { DocumentList } from "../components/documents/DocumentList"
+import { DocumentPreview } from "../components/documents/DocumentPreview"
 import { FolderBreadcrumbs } from "../components/documents/FolderBreadcrumbs"
+import { UploadDropzone } from "../components/documents/UploadDropzone"
 import { DragPreview } from "../components/folders/DragPreview"
 import { DropZone } from "../components/folders/DropZone"
 import { FolderCreator, type CreateFolderData } from "../components/folders/FolderCreator"
@@ -37,12 +41,14 @@ import { navigateBack, navigateForward, setCurrentFolder, toggleFavoriteFolder, 
 
 export function Documents() {
   const dispatch = useAppDispatch()
+  const location = useLocation()
+  const navigate = useNavigate()
   const { viewMode, selectedDocuments } = useAppSelector((state: any) => state.documents)
   const { currentFolderId, sidebarOpen } = useAppSelector((state: any) => state.folders)
 
   const [filters] = useState<{ search?: string }>({})
-  const [, setPreviewDocument] = useState<Document | null>(null)
-  const [, setShowUpload] = useState(false)
+  const [previewDocument, setPreviewDocument] = useState<Document | null>(null)
+  const [showUpload, setShowUpload] = useState(false)
   const [showFolderCreator, setShowFolderCreator] = useState(false)
   const [parentFolderForCreation, setParentFolderForCreation] = useState<Folder | null>(null)
   const [folderToRename, setFolderToRename] = useState<Folder | null>(null)
@@ -196,8 +202,30 @@ export function Documents() {
     dispatch(navigateForward())
   }
 
+  // Query param dialog logic
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get("upload") === "1") setShowUpload(true)
+    if (params.get("createFolder") === "1") setShowFolderCreator(true)
+  }, [location.search])
+
+  // Remove query param on dialog close
+  const handleCloseUpload = () => {
+    setShowUpload(false)
+    const params = new URLSearchParams(location.search)
+    params.delete("upload")
+    navigate({ search: params.toString() }, { replace: true })
+  }
+  const handleCloseFolderCreator = () => {
+    setShowFolderCreator(false)
+    const params = new URLSearchParams(location.search)
+    params.delete("createFolder")
+    navigate({ search: params.toString() }, { replace: true })
+  }
+
   return (
-    <div className="flex h-screen bg-background">
+    // Use full-height container with safe scroll regions. Avoid using viewport height inside AppShell twice.
+    <div className="flex h-full min-h-0 bg-background">
       <FolderSidebar
         folders={folders}
         currentFolderId={currentFolderId}
@@ -226,14 +254,15 @@ export function Documents() {
         className="hidden lg:block lg:w-80 flex-shrink-0"
       />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <DropZone
           folder={currentFolderId ? folders.find((f) => f.id === currentFolderId) : null}
           onMove={handleDragAndDrop}
           onUpload={(files, folderId) => uploadFiles(files, folderId)}
           className="flex-1 flex flex-col"
         >
-          <div className="flex-1 overflow-auto p-6 space-y-6">
+          {/* Header stays sticky within the scroll container for better UX */}
+          <div className="flex-1 min-h-0 overflow-auto p-6 space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" onClick={() => dispatch(toggleSidebar())} className="lg:hidden">
@@ -303,7 +332,7 @@ export function Documents() {
                 </CardContent>
               </Card>
             ) : viewMode === "grid" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredDocuments.map((document) => (
                   <DocumentContextMenu
                     key={document.id}
@@ -322,7 +351,7 @@ export function Documents() {
                     onViewHistory={(doc) => console.log("View history:", doc)}
                     onPermissions={(doc) => console.log("Permissions:", doc)}
                   >
-                    <div className="p-4 border rounded-lg hover:bg-accent/50 cursor-pointer">
+                    <div className="p-4 border rounded-lg hover:bg-accent/50 cursor-pointer h-full">
                       <h3 className="font-medium truncate">{document.name}</h3>
                       <p className="text-sm text-muted-foreground">{document.size}</p>
                     </div>
@@ -357,11 +386,29 @@ export function Documents() {
 
       <FolderCreator
         isOpen={showFolderCreator}
-        onClose={() => setShowFolderCreator(false)}
+        onClose={handleCloseFolderCreator}
         onCreateFolder={handleFolderCreation}
         parentFolder={parentFolderForCreation}
         existingFolders={folders}
       />
+
+      {/* Upload Dialog (if you have one) */}
+      {showUpload && (
+        <UploadDropzone onUpload={uploadFiles} onClose={handleCloseUpload} />
+      )}
+
+      {/* Document Preview Dialog */}
+      {previewDocument && (
+        <DocumentPreview
+          document={previewDocument}
+          isOpen={!!previewDocument}
+          onClose={() => setPreviewDocument(null)}
+          onDownload={(doc) => handleDocumentAction("download", doc)}
+          onShare={(doc) => handleDocumentAction("share", doc)}
+          onEdit={(doc) => handleDocumentAction("edit", doc)}
+          onDelete={(doc) => handleDocumentAction("delete", doc)}
+        />
+      )}
 
       <FolderRenameDialog
         folder={folderToRename}

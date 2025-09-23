@@ -1,19 +1,19 @@
 "use client"
 
+import { AlertTriangle, Calendar, CheckCircle, Clock, MoreHorizontal, Plus, Search, User } from "lucide-react"
 import { useState } from "react"
-import { Calendar, Clock, User, AlertTriangle, CheckCircle, Plus, Search, MoreHorizontal } from "lucide-react"
-import { Button } from "../ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
-import { Badge } from "../ui/badge"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Textarea } from "../ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { cn } from "../../lib/utils"
 import type { Assignment } from "../../types/workflow"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Badge } from "../ui/badge"
+import { Button } from "../ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { Input } from "../ui/input"
+import { Label } from "../ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Textarea } from "../ui/textarea"
 
 interface AssignmentPanelProps {
   documentId?: string
@@ -173,6 +173,124 @@ export function AssignmentPanel({
                   New Assignment
                 </Button>
               </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create New Assignment</DialogTitle>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="assignment-title">Title</Label>
+                    <Input
+                      id="assignment-title"
+                      value={newAssignment.title || ""}
+                      onChange={(e) => setNewAssignment((prev) => ({ ...prev, title: e.target.value }))}
+                      placeholder="Enter assignment title..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="assignment-description">Description</Label>
+                    <Textarea
+                      id="assignment-description"
+                      value={newAssignment.description || ""}
+                      onChange={(e) => setNewAssignment((prev) => ({ ...prev, description: e.target.value }))}
+                      placeholder="Describe what needs to be done..."
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="assignee">Assign to</Label>
+                      <Select
+                        value={newAssignment.assigneeId || ""}
+                        onValueChange={(value) => setNewAssignment((prev) => ({ ...prev, assigneeId: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select user..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mockUsers.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-6 w-6">
+                                  <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                                  <AvatarFallback className="text-xs">
+                                    {user.name
+                                      .split(" ")
+                                      .map((n) => n[0])
+                                      .join("")}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {user.name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="due-date">Due Date</Label>
+                      <Input
+                        id="due-date"
+                        type="datetime-local"
+                        value={newAssignment.dueDate || ""}
+                        onChange={(e) => setNewAssignment((prev) => ({ ...prev, dueDate: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="priority">Priority</Label>
+                      <Select
+                        value={newAssignment.priority || "normal"}
+                        onValueChange={(value) => setNewAssignment((prev) => ({ ...prev, priority: value as any }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="urgent">Urgent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="type">Type</Label>
+                      <Select
+                        value={newAssignment.type || "review"}
+                        onValueChange={(value) => setNewAssignment((prev) => ({ ...prev, type: value as any }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="review">Review</SelectItem>
+                          <SelectItem value="approval">Approval</SelectItem>
+                          <SelectItem value="edit">Edit</SelectItem>
+                          <SelectItem value="comment">Comment</SelectItem>
+                          <SelectItem value="custom">Custom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateAssignment} disabled={!newAssignment.title || !newAssignment.assigneeId}>
+                    Create Assignment
+                  </Button>
+                </div>
+              </DialogContent>
             </Dialog>
           </div>
         </CardHeader>
@@ -374,125 +492,7 @@ export function AssignmentPanel({
         </Card>
       )}
 
-      {/* Create Assignment Dialog */}
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Create New Assignment</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="assignment-title">Title</Label>
-            <Input
-              id="assignment-title"
-              value={newAssignment.title || ""}
-              onChange={(e) => setNewAssignment((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder="Enter assignment title..."
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="assignment-description">Description</Label>
-            <Textarea
-              id="assignment-description"
-              value={newAssignment.description || ""}
-              onChange={(e) => setNewAssignment((prev) => ({ ...prev, description: e.target.value }))}
-              placeholder="Describe what needs to be done..."
-              rows={3}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="assignee">Assign to</Label>
-              <Select
-                value={newAssignment.assigneeId || ""}
-                onValueChange={(value) => setNewAssignment((prev) => ({ ...prev, assigneeId: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select user..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockUsers.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                          <AvatarFallback className="text-xs">
-                            {user.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        {user.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="due-date">Due Date</Label>
-              <Input
-                id="due-date"
-                type="datetime-local"
-                value={newAssignment.dueDate || ""}
-                onChange={(e) => setNewAssignment((prev) => ({ ...prev, dueDate: e.target.value }))}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="priority">Priority</Label>
-              <Select
-                value={newAssignment.priority || "normal"}
-                onValueChange={(value) => setNewAssignment((prev) => ({ ...prev, priority: value as any }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="type">Type</Label>
-              <Select
-                value={newAssignment.type || "review"}
-                onValueChange={(value) => setNewAssignment((prev) => ({ ...prev, type: value as any }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="review">Review</SelectItem>
-                  <SelectItem value="approval">Approval</SelectItem>
-                  <SelectItem value="edit">Edit</SelectItem>
-                  <SelectItem value="comment">Comment</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 pt-4">
-          <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleCreateAssignment} disabled={!newAssignment.title || !newAssignment.assigneeId}>
-            Create Assignment
-          </Button>
-        </div>
-      </DialogContent>
+      {/* Create Assignment Dialog was moved inside the Dialog above */}
     </div>
   )
 }

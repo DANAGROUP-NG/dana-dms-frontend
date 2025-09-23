@@ -10,6 +10,7 @@ import { ShareLinkManager } from "@/components/permissions/ShareLinkManager"
 import { UserRolePicker } from "@/components/permissions/UserRolePicker"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Eye, Link, Settings, Shield, Users } from "lucide-react"
 import { useState } from "react"
@@ -24,7 +25,7 @@ export function PermissionsManagement({ documentId, documentTitle, onBack }: Per
   const [activeTab, setActiveTab] = useState("permissions")
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex h-full min-h-0 flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,14 +71,28 @@ export function PermissionsManagement({ documentId, documentTitle, onBack }: Per
                   } catch {}
                 }}
               />
-              <SecurityValidation />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="whitespace-nowrap">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Security Check
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-5xl w-full max-h-[85vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Security Validation</DialogTitle>
+                  </DialogHeader>
+                  <SecurityValidation />
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="permissions" className="flex items-center space-x-2">
@@ -164,6 +179,7 @@ export function PermissionsManagement({ documentId, documentTitle, onBack }: Per
             <PermissionAuditLog entries={[]} />
           </TabsContent>
         </Tabs>
+        </div>
       </div>
 
       {/* Share Dialog trigger is rendered in the header via ShareDialog component */}
