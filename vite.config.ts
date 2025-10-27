@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
 export default defineConfig({
-  base: "./", // ✅ important for Vercel deployment
+  base: "/", // Vercel serves from root
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
