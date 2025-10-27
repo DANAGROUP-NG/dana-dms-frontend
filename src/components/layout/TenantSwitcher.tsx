@@ -85,7 +85,7 @@ export function TenantSwitcher() {
           className="w-full justify-between bg-transparent"
         >
           <div className="flex items-center gap-2">
-            <img src="/public/dgc-logo.png" alt="Dana Group Logo"/>
+            <img src="/dgc-logo.png" alt="Dana Group Logo"/>
             {/* <span className="truncate">{selectedTenant?.name}</span> */}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
