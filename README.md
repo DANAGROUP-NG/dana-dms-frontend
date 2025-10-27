@@ -6,7 +6,7 @@
 A production-ready Document Management System built with React 18, TypeScript, Vite, and modern web technologies. This application provides a comprehensive solution for managing documents, folders, assignments, and workflows in an enterprise environment.
 
 ## 🚀 Features
-
+  
 ### Core Functionality
 - **Authentication System**: Secure login/logout with JWT token management
 - **Multi-tenant Architecture**: Hierarchical tenant switching (Group → Subsidiary → Location → Department)
