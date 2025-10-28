@@ -42,14 +42,18 @@
   --radius: 0.5rem;
 
   /* Added sidebar-specific color variables */
-  --sidebar: oklch(0.98 0.002 247.858);
-  --sidebar-foreground: oklch(0.15 0.007 285.82);
-  --sidebar-primary: oklch(0.45 0.15 250.87);
+  /* Using Dana Blue (#303292) as base background */
+  --sidebar: #303292;
+  --sidebar-foreground: oklch(0.98 0.002 247.858);
+  --sidebar-primary: oklch(0.7 0.15 250.87);
   --sidebar-primary-foreground: oklch(0.98 0.002 247.858);
-  --sidebar-accent: oklch(0.96 0.006 247.858);
-  --sidebar-accent-foreground: oklch(0.15 0.007 285.82);
-  --sidebar-border: oklch(0.92 0.005 285.82);
-  --sidebar-ring: oklch(0.45 0.15 250.87);
+  /* Active state using Dana Red (#ea252c) */
+  --sidebar-accent: #ea252c;
+  --sidebar-accent-foreground: oklch(0.98 0.002 247.858);
+  --sidebar-hover: rgba(234, 37, 44, 0.1);
+  --sidebar-hover-foreground: oklch(0.98 0.002 247.858);
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #ea252c;
 }
 
 /* Updated dark theme colors for better contrast and readability */
@@ -79,17 +83,46 @@
   --chart-4: oklch(0.7 0.18 45);
   --chart-5: oklch(0.6 0.1 285);
 
-  --sidebar: oklch(0.05 0.005 285.82);
+  /* Dark mode sidebar - slightly darker Dana Blue */
+  --sidebar: #262874;
   --sidebar-foreground: oklch(0.98 0.002 247.858);
-  --sidebar-primary: oklch(0.7 0.15 250.87);
-  --sidebar-primary-foreground: oklch(0.09 0.005 285.82);
-  --sidebar-accent: oklch(0.15 0.007 285.82);
-  --sidebar-accent-foreground: oklch(0.98 0.002 247.858);
-  --sidebar-border: oklch(0.15 0.007 285.82);
-  --sidebar-ring: oklch(0.7 0.15 250.87);
+  --sidebar-primary: oklch(0.75 0.15 250.87);
+  --sidebar-primary-foreground: oklch(0.98 0.002 247.858);
+  /* Active state using lighter Dana Red for dark mode */
+  --sidebar-accent: #f0666b;
+  --sidebar-accent-foreground: oklch(0.09 0.005 285.82);
+  --sidebar-hover: rgba(240, 102, 107, 0.15);
+  --sidebar-hover-foreground: oklch(0.98 0.002 247.858);
+  --sidebar-border: rgba(255, 255, 255, 0.15);
+  --sidebar-ring: #f0666b;
 }
 
 @theme inline {
+  --mute-bg: #f7f8f9;
+
+  /* Alizarin Crimson */
+  --dana-red-lightest: #fce9e9;
+  --dana-red-lighter: #fad3d4;
+  --dana-red-light: #f0666b;
+  --dana-red: #ea252c;
+  --dana-red-dark: #bb1d23;
+  --dana-red-darker: #5d0e11;
+  --dana-red-darkest: #460b0d;
+
+  /* Bay of Many */
+  --dana-blue-lightest: #eaeaf4;
+  --dana-blue-lighter: #d5d6e9;
+  --dana-blue-light: #6e6fb2;
+  --dana-blue: #303292;
+  --dana-blue-dark: #262874;
+  --dana-blue-darker: #13143a;
+  --dana-blue-darkest: #0e0f2b;
+
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -105,7 +138,6 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -120,13 +152,12 @@
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-hover-foreground: var(--sidebar-hover-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
 }
+
 
 @layer base {
   * {
@@ -224,6 +255,24 @@
       opacity: 0;
     }
   }
+}
+
+/* Sidebar tooltip styling for collapsed state */
+.sidebar-tooltip {
+  pointer-events: none;
+  position: absolute;
+  left: calc(100% + 0.5rem);
+  z-index: 50;
+  padding: 0.375rem 0.5rem;
+  background-color: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Responsive breakpoint overrides for better mobile experience */

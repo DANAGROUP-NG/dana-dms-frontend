@@ -4,6 +4,7 @@ import { LoginForm } from "../components/auth/LoginForm"
 import { AppShell } from "../components/layout/AppShell"
 import { ErrorBoundary } from "../components/ui/error-boundary"
 import { Assignments } from "../pages/Assignments"
+import { Audit } from "../pages/Audit"
 import { Dashboard } from "../pages/Dashboard"
 import { DocumentDetailView } from "../pages/DocumentDetailView"
 import { Documents } from "../pages/Documents"
@@ -11,19 +12,6 @@ import { Folders } from "../pages/Folders"
 import { NotFound } from "../pages/NotFound"
 import { PermissionsManagement } from "../pages/PermissionsManagement"
 import { WorkflowManagement } from "../pages/WorkflowManagement"
-
-// Placeholder component for Audit route
-// WorkflowManagement is now properly imported above
-
-const Audit = () => (
-  <div className="space-y-6">
-    <div>
-      <h1 className="text-3xl font-bold tracking-tight">Audit</h1>
-      <p className="text-muted-foreground">View audit logs and document access history</p>
-    </div>
-    <div className="text-center py-12 text-muted-foreground">Audit feature coming soon...</div>
-  </div>
-)
 
 const PermissionsRoute = () => {
   const { id } = useParams()

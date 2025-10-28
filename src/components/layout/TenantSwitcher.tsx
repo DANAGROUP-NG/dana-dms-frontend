@@ -2,7 +2,7 @@
 
 import type { Tenant } from "@/store/slices/authSlice"
 import { setCurrentTenant } from "@/store/slices/authSlice"
-import { Building2, Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown } from "lucide-react"
 import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../hooks/redux"
 import { cn } from "../../lib/utils"
@@ -82,7 +82,7 @@ export function TenantSwitcher() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between bg-transparent"
+          className="w-full justify-between bg-white text-foreground hover:bg-gray-50 border-border"
         >
           <div className="flex items-center gap-2">
             <img src="/dgc-logo.png" alt="Dana Group Logo"/>
