@@ -57,7 +57,7 @@ export function Folders() {
       {/* Folders Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {mockFolders.map((folder) => (
-          <Card key={folder.id} className="hover:shadow-md transition-shadow cursor-pointer">
+          <Card key={folder.id} className="hover:shadow-md transition-shadow cursor-pointer" onDoubleClick={() => (window.location.href = `/folders/${folder.id}`)}>
             <CardContent className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">

@@ -9,6 +9,7 @@ import { Dashboard } from "../pages/Dashboard"
 import { DocumentDetailView } from "../pages/DocumentDetailView"
 import { Documents } from "../pages/Documents"
 import { Folders } from "../pages/Folders"
+import FolderDetail from "../pages/FolderDetail"
 import { NotFound } from "../pages/NotFound"
 import { PermissionsManagement } from "../pages/PermissionsManagement"
 import { WorkflowManagement } from "../pages/WorkflowManagement"
@@ -80,7 +81,7 @@ export const router = createBrowserRouter([
           },
           {
             path: ":id",
-            element: <Folders />, // In a real app, this would be a FolderDetail component
+            element: <FolderDetail />, // Use dedicated Folder Detail page
           },
         ],
       },
