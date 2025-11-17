@@ -30,8 +30,22 @@ FROM nginx:alpine AS runner
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Remove default nginx configuration
-RUN rm /etc/nginx/conf.d/default.conf
+# Replace default nginx configuration (global) to use a writable PID path
+COPY <<EOF /etc/nginx/nginx.conf
+worker_processes auto;
+pid /tmp/nginx.pid;  # writable for non-root user
+events { worker_connections 1024; }
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+    include /etc/nginx/conf.d/*.conf;
+}
+EOF
+
+# Remove default server config and write our own
+RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Copy custom nginx configuration
 COPY <<EOF /etc/nginx/conf.d/default.conf
@@ -45,7 +59,7 @@ server {
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
-    gzip_proxied expired no-cache no-store private must-revalidate auth;
+    gzip_proxied expired no-cache no-store private auth;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
 
     # Handle client-side routing for SPA
@@ -62,7 +76,7 @@ server {
 
     # Proxy API requests to backend
     location /api {
-        proxy_pass http://backend:3000;
+        proxy_pass http://backend:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -80,7 +94,7 @@ server {
 
     # WebSocket support
     location /socket.io {
-        proxy_pass http://backend:3000;
+        proxy_pass http://backend:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -111,11 +125,12 @@ EOF
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Create non-root user
-RUN addgroup -g 1001 -S nginx-group
-RUN adduser -S nginx-user -u 1001 -G nginx-group
+RUN addgroup -g 1001 -S nginx-group \
+    && adduser -S nginx-user -u 1001 -G nginx-group
 
-# Change ownership
-RUN chown -R nginx-user:nginx-group /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html /etc/nginx/conf.d
+# Ensure runtime directories exist and are writable by non-root
+RUN mkdir -p /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html /etc/nginx/conf.d /run /tmp \
+    && chown -R nginx-user:nginx-group /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html /etc/nginx /run /tmp
 
 USER nginx-user
 
